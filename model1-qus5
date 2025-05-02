@@ -1,0 +1,71 @@
+import java.util.Scanner;
+ 
+public class VigenereCipherBank {
+     public static String generateKey(String message, String keyword) {
+        StringBuilder key = new StringBuilder();
+        keyword = keyword.toUpperCase();
+        int keyIndex = 0;
+ 
+        for (int i = 0; i < message.length(); i++) {
+            char ch = message.charAt(i);
+            if (Character.isLetter(ch)) {
+                key.append(keyword.charAt(keyIndex));
+                keyIndex = (keyIndex + 1) % keyword.length();
+            } else {
+                key.append(ch); 
+            }
+        }
+        return key.toString();
+    }
+    public static String encrypt(String message, String keyword) {
+        message = message.toUpperCase();
+        String key = generateKey(message, keyword);
+        StringBuilder encrypted = new StringBuilder();
+ 
+        for (int i = 0; i < message.length(); i++) {
+            char m = message.charAt(i);
+            char k = key.charAt(i);
+ 
+            if (Character.isLetter(m)) {
+                int c = (m - 'A' + k - 'A') % 26;
+                encrypted.append((char) (c + 'A'));
+            } else {
+                encrypted.append(m);
+            }
+        }
+        return encrypted.toString();
+    }
+     public static String decrypt(String encryptedMessage, String keyword) {
+        encryptedMessage = encryptedMessage.toUpperCase();
+        String key = generateKey(encryptedMessage, keyword);
+        StringBuilder decrypted = new StringBuilder();
+ 
+        for (int i = 0; i < encryptedMessage.length(); i++) {
+            char c = encryptedMessage.charAt(i);
+            char k = key.charAt(i);
+ 
+            if (Character.isLetter(c)) {
+                int m = (c - k + 26) % 26;
+                decrypted.append((char) (m + 'A'));
+            } else {
+                decrypted.append(c);
+            }
+        }
+        return decrypted.toString();
+    }
+ 
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+         System.out.print("Enter the transaction message: ");
+        String message = scanner.nextLine();
+ 
+        System.out.print("Enter the keyword: ");
+        String keyword = scanner.nextLine();
+        String encrypted = encrypt(message, keyword);
+        String decrypted = decrypt(encrypted, keyword);
+         System.out.println("\nEncrypted Message: " + encrypted);
+        System.out.println("Decrypted Message: " + decrypted);
+ 
+        scanner.close();
+    }
+} 
