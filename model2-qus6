@@ -1,0 +1,61 @@
+import java.security.*;
+import java.util.Base64;
+import java.io.*;
+import java.nio.file.*;
+import java.util.Scanner;
+
+public class LegalDocumentSignature {
+
+    public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
+        keyPairGenerator.initialize(2048); // Key size
+        return keyPairGenerator.generateKeyPair();
+    }
+
+    public static byte[] hashDocument(String documentContent) throws NoSuchAlgorithmException {
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+        return messageDigest.digest(documentContent.getBytes());
+    }
+    public static String signDocument(byte[] documentHash, PrivateKey privateKey) throws Exception {
+        Signature signature = Signature.getInstance("SHA256withDSA");
+        signature.initSign(privateKey);
+        signature.update(documentHash);
+        byte[] signedData = signature.sign();
+        return Base64.getEncoder().encodeToString(signedData); 
+    }
+
+    public static boolean verifySignature(byte[] documentHash, String signatureStr, PublicKey publicKey) throws Exception {
+        Signature signature = Signature.getInstance("SHA256withDSA");
+        signature.initVerify(publicKey);
+        signature.update(documentHash);
+        byte[] signatureBytes = Base64.getDecoder().decode(signatureStr);
+        return signature.verify(signatureBytes); 
+    }
+
+    public static void main(String[] args) {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("enter the content of the legal document:");
+            String documentContent = scanner.nextLine();
+
+            KeyPair keyPair = generateKeyPair();
+            PrivateKey privateKey = keyPair.getPrivate();
+            PublicKey publicKey = keyPair.getPublic();
+
+            byte[] documentHash = hashDocument(documentContent);
+
+            String signedDocument = signDocument(documentHash, privateKey);
+            System.out.println("\nSigned Document (Base64 encoded): " + signedDocument);
+
+            boolean isVerified = verifySignature(documentHash, signedDocument, publicKey);
+            if (isVerified) {
+                System.out.println("\nDocument Signature Verified: The document is valid and has not been tampered with.");
+            } else {
+                System.out.println("\nDocument Signature Verification Failed: The document may have been altered.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
