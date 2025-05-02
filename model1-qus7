@@ -1,0 +1,28 @@
+ import java.math.BigInteger;
+import java.util.Scanner;
+public class MilitaryEncryptionWithInput {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int p = 19;
+        int q = 41;
+        int e = 7;
+        int n = p * q;
+        int phi = (p - 1) * (q - 1);
+        BigInteger eBig = BigInteger.valueOf(e);
+        BigInteger phiBig = BigInteger.valueOf(phi);
+        BigInteger d = eBig.modInverse(phiBig);
+        System.out.print("Enter a numeric message (m): ");
+        int m = scanner.nextInt();
+        BigInteger mBig = BigInteger.valueOf(m);
+        BigInteger nBig = BigInteger.valueOf(n);
+        BigInteger c = mBig.modPow(eBig, nBig);
+        BigInteger decrypted = c.modPow(d, nBig);
+        System.out.println("\n--- RSA Encryption/Decryption ---");
+        System.out.println("Public Key (e, n): (" + e + ", " + n + ")");
+        System.out.println("Private Key (d, n): (" + d + ", " + n + ")");
+        System.out.println("Original Message: " + m);
+        System.out.println("Encrypted Message: " + c);
+        System.out.println("Decrypted Message: " + decrypted);
+        scanner.close();
+    }
+}
