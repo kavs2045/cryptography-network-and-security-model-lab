@@ -1,0 +1,39 @@
+import java.security.*;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class DigitalSignatureSimulation {
+    public static void main(String[] args) throws Exception {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the document content: ");
+        String document = scanner.nextLine();
+
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
+        keyGen.initialize(2048);
+        KeyPair keyPair = keyGen.generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        Signature signer = Signature.getInstance("SHA256withDSA");
+        signer.initSign(privateKey);
+        signer.update(document.getBytes());
+        byte[] digitalSignature = signer.sign();
+
+        String encodedSignature = Base64.getEncoder().encodeToString(digitalSignature);
+        System.out.println("Document: " + document);
+        System.out.println("Digital Signature (Base64): " + encodedSignature);
+
+        Signature verifier = Signature.getInstance("SHA256withDSA");
+        verifier.initVerify(publicKey);
+        verifier.update(document.getBytes());
+        boolean isVerified = verifier.verify(Base64.getDecoder().decode(encodedSignature));
+
+        System.out.println("Verification result: " + (isVerified ? "VALID" : "INVALID"));
+        scanner.close();
+    }
+
+}
+
+
+
+
