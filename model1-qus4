@@ -1,0 +1,27 @@
+import java.util.*;
+public class CaesarBruteForce {
+    public static String decrypt(String cipherText, int shift) {
+        StringBuilder result = new StringBuilder();
+        for (char ch : cipherText.toCharArray()) {
+            if (Character.isUpperCase(ch)) {
+                char decrypted = (char) ((ch - 'A' - shift + 26) % 26 + 'A');
+                result.append(decrypted);
+            } else if (ch == ' ') {
+                result.append(' ');
+            } else {
+                result.append(ch);
+            }
+        }
+        return result.toString();
+    }
+
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        String cipherText =sc.nextLine();
+
+        for (int shift = 1; shift < 26; shift++) {
+            String plaintext = decrypt(cipherText, shift);
+            System.out.println("Shift " + shift + ": " + plaintext);
+        }
+    }
+}
