@@ -1,0 +1,88 @@
+import java.util.*;
+public class HillCipher {
+    static int[][] key = {
+        {3, 3},
+        {2, 5}
+    };
+    static final int MOD = 26;
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter plaintext (e.g., HELP): ");
+        String plaintext = scanner.nextLine().toUpperCase().replaceAll("[^A-Z]", "");
+        if (plaintext.length() % 2 != 0) {
+            plaintext += "X";
+        }
+        System.out.println("\nPlaintext after padding: " + plaintext);
+        int[][] numericPlaintext = toNumericPairs(plaintext);
+        int[][] encryptedPairs = encrypt(numericPlaintext);
+        String ciphertext = toLetters(encryptedPairs);
+        System.out.println("Encrypted ciphertext: " + ciphertext);
+        int[][] decryptedPairs = decrypt(encryptedPairs);
+        String decrypted = toLetters(decryptedPairs);
+        System.out.println("Decrypted text: " + decrypted);
+    }
+    private static int[][] toNumericPairs(String text) {
+        int[][] pairs = new int[text.length() / 2][2];
+        for (int i = 0, p = 0; i < text.length(); i += 2, p++) {
+            pairs[p][0] = text.charAt(i) - 'A';
+            pairs[p][1] = text.charAt(i + 1) - 'A';
+        }
+        return pairs;
+    }
+    private static String toLetters(int[][] pairs) {
+        StringBuilder sb = new StringBuilder();
+        for (int[] pair : pairs) {
+            sb.append((char) (pair[0] + 'A'));
+            sb.append((char) (pair[1] + 'A'));
+        }
+        return sb.toString();
+    }
+    private static int[][] encrypt(int[][] pairs) {
+        int[][] result = new int[pairs.length][2];
+        for (int i = 0; i < pairs.length; i++) {
+            result[i][0] = (key[0][0] * pairs[i][0] + key[0][1] * pairs[i][1]) % MOD;
+            result[i][1] = (key[1][0] * pairs[i][0] + key[1][1] * pairs[i][1]) % MOD;
+        }
+        return result;
+    }
+    private static int[][] decrypt(int[][] pairs) {
+        int[][] inverseKey = inverseKeyMatrix(key);
+        int[][] result = new int[pairs.length][2];
+        for (int i = 0; i < pairs.length; i++) {
+            result[i][0] = (inverseKey[0][0] * pairs[i][0] + inverseKey[0][1] * pairs[i][1]) % MOD;
+            result[i][1] = (inverseKey[1][0] * pairs[i][0] + inverseKey[1][1] * pairs[i][1]) % MOD;
+            result[i][0] = (result[i][0] + MOD) % MOD;
+            result[i][1] = (result[i][1] + MOD) % MOD;
+        }
+        return result;
+    }
+    private static int[][] inverseKeyMatrix(int[][] matrix) {
+        int det = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+        det = (det % MOD + MOD) % MOD;
+        int detInv = modInverse(det, MOD);
+        if (detInv == -1) {
+            throw new IllegalArgumentException("Key matrix is not invertible modulo 26.");
+        }
+        int[][] inverse = new int[2][2];
+        inverse[0][0] = matrix[1][1];
+        inverse[0][1] = -matrix[0][1];
+        inverse[1][0] = -matrix[1][0];
+        inverse[1][1] = matrix[0][0];
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                inverse[i][j] = (inverse[i][j] * detInv) % MOD;
+                if (inverse[i][j] < 0)
+                    inverse[i][j] += MOD;
+            }
+        }
+        return inverse;
+    }
+    private static int modInverse(int a, int m) {
+        a = a % m;
+        for (int x = 1; x < m; x++) {
+            if ((a * x) % m == 1)
+                return x;
+        }
+        return -1;
+    }
+}
