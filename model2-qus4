@@ -1,0 +1,26 @@
+import java.util.Scanner;
+
+public class ArpSpoofSimulation {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("=== ARP Spoofing Simulation ===");
+        System.out.print("Enter source IP address: ");
+        String sourceIP = scanner.nextLine();
+
+        System.out.print("Enter destination IP address: ");
+        String destIP = scanner.nextLine();
+
+        System.out.print("Enter forged MAC address: ");
+        String forgedMAC = scanner.nextLine();
+
+        System.out.println("\n--- Simulated Packet Log ---");
+        System.out.println("Forged ARP packet detected!");
+        System.out.println("Source IP: " + sourceIP);
+        System.out.println("Destination IP: " + destIP);
+        System.out.println("Forged MAC: " + forgedMAC);
+        System.out.println("ALERT: Possible ARP spoofing attempt detected!");
+
+        scanner.close();
+    }
+}
