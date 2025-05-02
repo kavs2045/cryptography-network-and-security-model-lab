@@ -1,0 +1,47 @@
+import java.util.Scanner;
+
+public class RSAVoting {
+
+    public static int modInverse(int e, int phi) {
+        for (int d = 1; d < phi; d++) {
+            if ((e * d) % phi == 1) {
+                return d;
+            }
+        }
+        throw new IllegalArgumentException("Modular inverse not found.");
+    }
+
+    public static int modPow(int base, int exp, int mod) {
+        int result = 1;
+        base = base % mod;
+        while (exp > 0) {
+            if ((exp & 1) == 1)
+                result = (result * base) % mod;
+            exp >>= 1;
+            base = (base * base) % mod;
+        }
+        return result;
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        int p = 13, q = 19;
+        int n = p * q; 
+        int phi = (p - 1) * (q - 1); 
+        int e = 11;
+        int d = modInverse(e, phi);
+
+        System.out.print("Enter your vote (number): ");
+        int m = scanner.nextInt();
+
+        int encrypted = modPow(m, e, n);
+        int decrypted = modPow(encrypted, d, n);
+
+        System.out.println("\n--- Encryption Details ---");
+        System.out.println("Public Key (e, n): (" + e + ", " + n + ")");
+        System.out.println("Private Key d: " + d);
+        System.out.println("Original Vote: " + m);
+        System.out.println("Encrypted Vote: " + encrypted);
+        System.out.println("Decrypted Vote: " + decrypted);
+    }
