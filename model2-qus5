@@ -1,0 +1,51 @@
+import java.security.*;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class DigitalSignatureExample {
+    public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
+        keyPairGenerator.initialize(2048); 
+        return keyPairGenerator.generateKeyPair();
+    }
+    public static String signConsentForm(String message, PrivateKey privateKey) throws Exception {
+        Signature signature = Signature.getInstance("SHA256withDSA");
+        signature.initSign(privateKey);
+        signature.update(message.getBytes());
+        byte[] signedData = signature.sign();
+        return Base64.getEncoder().encodeToString(signedData); 
+    }
+    public static boolean verifySignature(String message, String signatureStr, PublicKey publicKey) throws Exception {
+        Signature signature = Signature.getInstance("SHA256withDSA");
+        signature.initVerify(publicKey);
+        signature.update(message.getBytes());
+        byte[] signatureBytes = Base64.getDecoder().decode(signatureStr);
+        return signature.verify(signatureBytes); 
+    }
+
+    public static void main(String[] args) {
+        try {
+            Scanner scanner = new Scanner(System.in);
+
+            System.out.println("enter your consent form message:");
+            String consentFormMessage = scanner.nextLine();
+
+            KeyPair keyPair = generateKeyPair();
+            PrivateKey privateKey = keyPair.getPrivate();
+            PublicKey publicKey = keyPair.getPublic();
+
+            String signedForm = signConsentForm(consentFormMessage, privateKey);
+            System.out.println("\nSigned Consent Form (Base64 encoded): " + signedForm);
+
+            boolean isVerified = verifySignature(consentFormMessage, signedForm, publicKey);
+            if (isVerified) {
+                System.out.println("\nSignature Verified: The consent form is valid.");
+            } else {
+                System.out.println("\nSignature Verification Failed: The consent form is not valid.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
